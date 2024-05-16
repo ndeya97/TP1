@@ -52,7 +52,7 @@ Vagrant.configure("2") do |config|
     SHELL
     dbapp01.vm.provision "shell", path: "configure_pg_hba.sh"
     dbapp01.vm.provision "shell", inline: <<-SHELL
-    sudo systemctl restart postgresql
+     sudo systemctl restart postgresql
     SHELL
   end
 
