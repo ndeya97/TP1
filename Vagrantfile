@@ -10,25 +10,32 @@ Vagrant.configure("2") do |config|
     devapp01.vm.box_check_update = false
 
     devapp01.vm.network "private_network", type: "static", ip: "172.16.238.10"
+    
+    #repertoires de synchronisation entre la machine local et la vm devapp01 :
+    #Pour le server tomcat
+    devapp01.vm.synced_folder "./tomcatwebapps", "/opt/tomcat/webapps"
+    #Pour le code de notre application java
+    devapp01.vm.synced_folder "./fintechapp", "/opt/fintechapp"
+
 
     devapp01.vm.provider "virtualbox" do |vb|
-
       vb.gui = false
       vb.name = "devapp01"
       vb.memory = "1024"
     end
+
     devapp01.vm.provision "shell", inline: <<-SHELL
-      # Installation de Java 17
+      # Installation de Java 17 et default-jdk
       sudo apt-get update
-      sudo apt-get install -y openjdk-17-jdk
-      sudo apt-get install -y default-jdk
-      
+      sudo apt-get install -y openjdk-17-jdk default-jdk  
+
       # Installation de Tomcat
-      sudo apt-get install -y tomcat9
+      sudo apt-get install -y tomcat9 tomcat9-admin
       
       # Installation de Git
       sudo apt-get install -y git
     SHELL
+    
   end
 
   #Instance avec une base de donnees PostgreSQL
@@ -41,19 +48,14 @@ Vagrant.configure("2") do |config|
     dbapp01.vm.network "private_network", type: "static", ip: "172.16.238.11"
 
     dbapp01.vm.provider "virtualbox" do |vb|
-
-      vb.gui = true
+      vb.gui = false
       vb.name = "dbapp01"
       vb.memory = "1024"
     end
-    dbapp01.vm.provision "shell", path: "setup_postgresql.sh"
-    dbapp01.vm.provision "shell", inline: <<-SHELL
-      sudo -u postgres psql -c "CREATE DATABASE dbapp001;"
-    SHELL
-    dbapp01.vm.provision "shell", path: "configure_pg_hba.sh"
-    dbapp01.vm.provision "shell", inline: <<-SHELL
-     sudo systemctl restart postgresql
-    SHELL
+
+    # Installation et configuration de postgresql et creation de la base de donnees dbapp01
+    dbapp01.vm.provision "shell", path: "config_postgresql.sh"
+
   end
 
   #Instance de sauvegarde code source et base de donnees
@@ -66,8 +68,7 @@ Vagrant.configure("2") do |config|
     backup01.vm.network "private_network", type: "static", ip: "172.16.238.12"
 
     backup01.vm.provider "virtualbox" do |vb|
-
-      vb.gui = true
+      vb.gui = false
       vb.name = "backup01"
       vb.memory = "1024"
     end
