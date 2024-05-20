@@ -31,11 +31,18 @@ Vagrant.configure("2") do |config|
 
       # Installation de Tomcat
       sudo apt-get install -y tomcat9 tomcat9-admin
-      
+      #Installation d'un postgreSQL client
+      sudo apt-get install -y postgresql-client
+      # Installation de postgres client pour acceder a la base de donnees postgresql
+      sudo sed -i 's/.*<Connector port="8080".*/<Connector port="8080" protocol="HTTP\/1.1" connectionTimeout="20000" URIEncoding="UTF-8" \/>/' /etc/tomcat9/server.xml
+      # Redemarrage de PostgreSQL pour appliquer les changements de configuration
+      sudo systemctl restart tomcat9
+
       # Installation de Git
       sudo apt-get install -y git
     SHELL
     
+
   end
 
   #Instance avec une base de donnees PostgreSQL
