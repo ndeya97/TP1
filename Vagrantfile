@@ -22,22 +22,21 @@ Vagrant.configure("2") do |config|
       # Installation de Java 17 et default-jdk
       sudo apt-get update
       sudo apt-get install -y openjdk-17-jdk default-jdk  
-
       # Installation de Tomcat
       sudo apt-get install -y tomcat9 tomcat9-admin
-
       #Installation d'un postgreSQL client pour acceder a la base de donnees PostgreSQL
       sudo apt-get install -y postgresql-client-14
+      # Installation de Git
+      sudo apt-get install -y git rsync
 
       # Configuration de Tomcat
-      sudo sed -i 's/.*<Connector port="8080".*/<Connector port="8080" protocol="HTTP\/1.1" connectionTimeout="20000" URIEncoding="UTF-8" \/>/' /etc/tomcat9/server.xml
-      
+      sudo sed -i 's/.*<Connector port="8080".*/<Connector port="8080" protocol="HTTP\/1.1" connectionTimeout="20000" URIEncoding="UTF-8" \/>/' /etc/tomcat9/server.xml 
       # Redemarrage de Tomcat pour appliquer les changements de configuration
       sudo systemctl restart tomcat9
-
-      # Installation de Git
-      sudo apt-get install -y git
     SHELL
+
+    # Script de sauvegarde et configuration de cron
+    devapp01.vm.provision "shell", path: "backup_code_setup.sh"
   end
 
   #Instance avec une base de donnees PostgreSQL

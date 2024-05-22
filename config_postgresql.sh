@@ -21,3 +21,8 @@ sudo -u postgres psql -c "CREATE DATABASE dbapp01;"
 
 # Redemarrage de PostgreSQL pour appliquer les changements de configuration
 sudo systemctl restart postgresql
+
+# Configuration du pare-feu UFW
+sudo ufw allow from 172.16.238.10 to any port 5432
+sudo ufw deny 5432
+sudo ufw enable
