@@ -4,19 +4,13 @@
 Vagrant.configure("2") do |config|
   #Instance qui heberge notre application Java
   config.vm.define "devapp01" do |devapp01|
-
     devapp01.vm.box = "bento/ubuntu-22.04"
-
     devapp01.vm.box_check_update = false
-
     devapp01.vm.network "private_network", type: "static", ip: "172.16.238.10"
     
-    #repertoires de synchronisation entre la machine local et la vm devapp01 :
-    #Pour le server tomcat
+    #repertoires de synchronisation entre la machine locale et la vm devapp01 :
     devapp01.vm.synced_folder "./tomcatwebapps", "/opt/tomcat/webapps"
-    #Pour le code de notre application java
     devapp01.vm.synced_folder "./fintechapp", "/opt/fintechapp"
-
 
     devapp01.vm.provider "virtualbox" do |vb|
       vb.gui = false
@@ -31,27 +25,25 @@ Vagrant.configure("2") do |config|
 
       # Installation de Tomcat
       sudo apt-get install -y tomcat9 tomcat9-admin
-      #Installation d'un postgreSQL client
-      sudo apt-get install -y postgresql-client
-      # Installation de postgres client pour acceder a la base de donnees postgresql
+
+      #Installation d'un postgreSQL client pour acceder a la base de donnees PostgreSQL
+      sudo apt-get install -y postgresql-client-14
+
+      # Configuration de Tomcat
       sudo sed -i 's/.*<Connector port="8080".*/<Connector port="8080" protocol="HTTP\/1.1" connectionTimeout="20000" URIEncoding="UTF-8" \/>/' /etc/tomcat9/server.xml
-      # Redemarrage de PostgreSQL pour appliquer les changements de configuration
+      
+      # Redemarrage de Tomcat pour appliquer les changements de configuration
       sudo systemctl restart tomcat9
 
       # Installation de Git
       sudo apt-get install -y git
     SHELL
-    
-
   end
 
   #Instance avec une base de donnees PostgreSQL
   config.vm.define "dbapp01" do |dbapp01|
-
     dbapp01.vm.box = "bento/ubuntu-22.04"
-
     dbapp01.vm.box_check_update = false
-
     dbapp01.vm.network "private_network", type: "static", ip: "172.16.238.11"
 
     dbapp01.vm.provider "virtualbox" do |vb|
@@ -62,16 +54,12 @@ Vagrant.configure("2") do |config|
 
     # Installation et configuration de postgresql et creation de la base de donnees dbapp01
     dbapp01.vm.provision "shell", path: "config_postgresql.sh"
-
   end
 
   #Instance de sauvegarde code source et base de donnees
   config.vm.define "backup01" do |backup01|
-
     backup01.vm.box = "bento/ubuntu-22.04"
-
     backup01.vm.box_check_update = false
-
     backup01.vm.network "private_network", type: "static", ip: "172.16.238.12"
 
     backup01.vm.provider "virtualbox" do |vb|
@@ -80,5 +68,4 @@ Vagrant.configure("2") do |config|
       vb.memory = "1024"
     end
   end
-
 end
