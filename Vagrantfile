@@ -34,8 +34,14 @@ Vagrant.configure("2") do |config|
       # Redemarrage de Tomcat pour appliquer les changements de configuration
       sudo systemctl restart tomcat9
     SHELL
+    
     # Script de configuration de la sauvegarde du code source sur backup01
     devapp01.vm.provision "shell", path: "backup_code_setup.sh"
+
+    # Clone du depot GitHub dans /opt/fintechapp
+    devapp01.vm.provision "shell", inline: <<-SHELL
+      git clone https://github.com/ndeya97/fintechapp.git /opt/fintechapp
+    SHELL
   end
 
   #Instance avec une base de donnees PostgreSQL
