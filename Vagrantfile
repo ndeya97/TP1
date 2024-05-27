@@ -26,7 +26,7 @@ Vagrant.configure("2") do |config|
       sudo apt-get install -y tomcat9 tomcat9-admin
       #Installation d'un postgreSQL client pour acceder a la base de donnees PostgreSQL
       sudo apt-get install -y postgresql-client-14
-      # Installation de Git
+      # Installation de Git et rsync
       sudo apt-get install -y git rsync
 
       # Configuration de Tomcat
@@ -34,8 +34,7 @@ Vagrant.configure("2") do |config|
       # Redemarrage de Tomcat pour appliquer les changements de configuration
       sudo systemctl restart tomcat9
     SHELL
-
-    # Script de sauvegarde et configuration de cron
+    # Script de configuration de la sauvegarde du code source sur backup01
     devapp01.vm.provision "shell", path: "backup_code_setup.sh"
   end
 
@@ -53,6 +52,8 @@ Vagrant.configure("2") do |config|
 
     # Installation et configuration de postgresql et creation de la base de donnees dbapp01
     dbapp01.vm.provision "shell", path: "config_postgresql.sh"
+    # Script de configuration de la sauvegarde de la base de donnees sur backup01
+    dbapp01.vm.provision "shell", path: "backup_db_setup.sh"
   end
 
   #Instance de sauvegarde code source et base de donnees
@@ -66,5 +67,15 @@ Vagrant.configure("2") do |config|
       vb.name = "backup01"
       vb.memory = "1024"
     end
+
+    backup01.vm.provision "shell", inline: <<-SHELL
+      mkdir -p /home/vagrant/backup/fintechapp
+      mkdir -p /home/vagrant/backup/db_backups
+
+      # Changement des permissions des repertoires de sauvegarde
+      # Cette commande modifie les permissions des repertoires et fichiers de /home/vagrant/backup
+      # pour que le proprietaire ait toutes les permissions et que les autres utilisateurs puissent lire et executer les fichiers.
+      chmod -R 755 /home/vagrant/backup
+    SHELL
   end
 end
